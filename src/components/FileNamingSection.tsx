@@ -22,7 +22,7 @@ export default function FileNamingSection({
   }
 
   return (
-    <div className="rounded-xl border bg-white p-4 space-y-4">
+    <div className="rounded-xl border bg-white p-4 space-y-2">
       <h2 className="text-lg font-semibold">File Naming</h2>
 
       <div className="grid md:grid-cols-3 gap-4">

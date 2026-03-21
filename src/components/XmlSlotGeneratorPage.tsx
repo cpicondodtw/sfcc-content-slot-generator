@@ -9,6 +9,10 @@ import ConfigurationPairSection from "./ConfigurationPairSection";
 import FileNamingSection from "./FileNamingSection";
 import XmlPreviewCard from "./XmlPreviewCard";
 
+const MAX_PAIRS = 10;
+const FORBIDDEN_DESCRIPTION_PARTS = ["#", "Schedule", "Campaign_name", "Created_date"];
+
+
 function createId(prefix: string) {
   if (
     typeof globalThis !== "undefined" &&
@@ -52,14 +56,23 @@ function buildConfigurationId(date: string, campaignName: string, contextId: str
   return [cleanDate, cleanCampaignName, cleanContextId].filter(Boolean).join("_");
 }
 
+function getConfigurationId(config: ConfigForm, fileNaming: FileNamingForm) {
+  if (config.configurationIdManuallyEdited) {
+    return config.configurationId;
+  }
+
+  return buildConfigurationId(fileNaming.date, fileNaming.campaignName, config.contextId);
+}
+
 function createDefaultConfig(): ConfigForm {
   return {
-    slotId: "",
+    slotId: "cat-grid-slot1",
     context: "category",
     contextId: "",
     configurationId: "",
+    configurationIdManuallyEdited: false,
     assignedToSite: false,
-    description: "",
+    description: "Rank # | Schedule | Campaign_name | Created_date",
     template: "slots/content/contentassetbody.isml",
     enabledFlag: true,
     contentAssetId: "",
@@ -120,17 +133,20 @@ export default function XmlSlotGeneratorPage() {
           fileNaming.campaignName,
           pair.config.contextId,
         );
+        const configurationId = pair.config.configurationIdManuallyEdited
+          ? pair.config.configurationId
+          : nextConfigurationId;
 
         return {
           ...pair,
           config: {
             ...pair.config,
-            configurationId: nextConfigurationId,
+            configurationId,
           },
           assignments: pair.assignments.map((assignment) => ({
             ...assignment,
             contextId: pair.config.contextId,
-            configurationId: nextConfigurationId,
+            configurationId,
           })),
         };
       }),
@@ -138,37 +154,40 @@ export default function XmlSlotGeneratorPage() {
   }, [fileNaming.date, fileNaming.campaignName]);
 
   const validationError = useMemo(() => {
-  for (const pair of pairs) {
-    const { config, assignments } = pair;
+    for (const pair of pairs) {
+      const { config, assignments } = pair;
 
-    if (
-      !config.slotId.trim() ||
-      !config.context.trim() ||
-      !config.contextId.trim() ||
-      !config.configurationId.trim() ||
-      !config.description.trim() ||
-      !config.template.trim() ||
-      !config.contentAssetId.trim()
-    ) {
-      return "All Slot Configuration fields must be filled.";
-    }
-
-    for (const assignment of assignments) {
       if (
-        !assignment.slotId.trim() ||
-        !assignment.context.trim() ||
-        !assignment.contextId.trim() ||
-        !assignment.configurationId.trim() ||
-        !assignment.campaignId.trim() ||
-        !assignment.rank.trim()
+        !config.slotId.trim() ||
+        !config.context.trim() ||
+        !config.contextId.trim() ||
+        !config.configurationId.trim() ||
+        !config.description.trim() ||
+        !config.template.trim() ||
+        !config.contentAssetId.trim()
       ) {
-        return "All Campaign Assignment fields must be filled.";
+        return "All Slot Configuration fields must be filled.";
+      }
+      if (FORBIDDEN_DESCRIPTION_PARTS.some((part) => config.description.includes(part))) {
+        return 'Description must not contain "#", "Schedule", "Campaign_name", or "Created_date".';
+      }
+
+      for (const assignment of assignments) {
+        if (
+          !assignment.slotId.trim() ||
+          !assignment.context.trim() ||
+          !assignment.contextId.trim() ||
+          !assignment.configurationId.trim() ||
+          !assignment.campaignId.trim() ||
+          !assignment.rank.trim()
+        ) {
+          return "All Campaign Assignment fields must be filled.";
+        }
       }
     }
-  }
 
-  return null;
-}, [pairs]);
+    return null;
+  }, [pairs]);
 
   const xmlOutput = useMemo(() => {
     if (validationError) {
@@ -187,6 +206,11 @@ export default function XmlSlotGeneratorPage() {
   }, [fileNaming]);
 
   const addPair = () => {
+    if (pairs.length >= MAX_PAIRS) {
+      setError("You can only add up to 10 Slot tabs.");
+      return;
+    }
+
     const newPair = createDefaultPair();
     const nextConfigurationId = buildConfigurationId(
       fileNaming.date,
@@ -207,6 +231,7 @@ export default function XmlSlotGeneratorPage() {
       })),
     };
 
+    setError(null);
     setPairs((prev) => [...prev, pairWithGeneratedValues]);
     setActivePairId(pairWithGeneratedValues.id);
   };
@@ -234,17 +259,26 @@ export default function XmlSlotGeneratorPage() {
           return pair;
         }
 
-        const nextConfigurationId = buildConfigurationId(
+        const generatedConfigurationId = buildConfigurationId(
           fileNaming.date,
           fileNaming.campaignName,
           nextConfig.contextId,
         );
+        const configurationIdWasEdited =
+          nextConfig.configurationId !== pair.config.configurationId;
+        const configurationIdManuallyEdited = configurationIdWasEdited
+          ? nextConfig.configurationId !== generatedConfigurationId
+          : pair.config.configurationIdManuallyEdited;
+        const nextConfigurationId = configurationIdManuallyEdited
+          ? nextConfig.configurationId
+          : generatedConfigurationId;
 
         return {
           ...pair,
           config: {
             ...nextConfig,
             configurationId: nextConfigurationId,
+            configurationIdManuallyEdited,
           },
           assignments: pair.assignments.map((assignment) => ({
             ...assignment,
@@ -265,11 +299,7 @@ export default function XmlSlotGeneratorPage() {
           return pair;
         }
 
-        const nextConfigurationId = buildConfigurationId(
-          fileNaming.date,
-          fileNaming.campaignName,
-          pair.config.contextId,
-        );
+        const nextConfigurationId = getConfigurationId(pair.config, fileNaming);
 
         return {
           ...pair,
@@ -332,11 +362,15 @@ export default function XmlSlotGeneratorPage() {
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-10">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">XML Slot Generator</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">XML Content Slot Generator</h1>
+            
             <p className="mt-2 text-sm text-slate-600">
-              Create one or more Slot + Campaign configuration pairs and switch between them using tabs.
+              This tool supports SHI... EMEA Grid slot generation
+            </p>
+            <p className="mt-2 text-xs text-slate-600">
+              Create one or more Slot + Campaign configuration pairs and switch between them using tabs. 
             </p>
           </div>
 
@@ -354,9 +388,9 @@ export default function XmlSlotGeneratorPage() {
 
           <div className="rounded-2xl border bg-white shadow-sm">
             <Tabs value={activePairId} onValueChange={setActivePairId} className="w-full">
-              <div className="border-b px-4 py-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <TabsList className="h-auto bg-slate-100 p-1">
+              <div className="border-b px-4 py-2 space-y-2">
+                <div className="overflow-x-auto">
+                  <TabsList className="flex w-max gap-2 rounded-lg bg-slate-100 p-1">
                     {pairs.map((pair, index) => (
                       <TabsTrigger
                         key={pair.id}
@@ -367,15 +401,24 @@ export default function XmlSlotGeneratorPage() {
                       </TabsTrigger>
                     ))}
                   </TabsList>
+                </div>
 
-                  <Button type="button" variant="outline" onClick={addPair} className="rounded-md">
-                    <Plus className="mr-2 h-4 w-4" />
+                <div >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addPair}
+                    className="rounded-md"
+                    disabled={pairs.length >= MAX_PAIRS}
+                  >
+                    <Plus className="mr-2 h-4 w-3" />
                     Add Slot
                   </Button>
                 </div>
+                <p className="text-xs text-slate-400">Maximum 10 Slot tabs only.</p>
               </div>
 
-              <div className="block w-full p-6">
+              <div className="block w-full p-4">
                 {pairs.map((pair, index) => (
                   <TabsContent key={pair.id} value={pair.id} className="mt-0 block w-full">
                     <div className="block w-full">
@@ -397,6 +440,7 @@ export default function XmlSlotGeneratorPage() {
 
         <div className="space-y-6">
           <XmlPreviewCard
+            pairs={pairs}
             xmlOutput={xmlOutput}
             copied={copied}
             onCopy={copyXml}

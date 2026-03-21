@@ -36,10 +36,10 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
             onChange={(e) => updateConfig("slotId", e.target.value)}
             className={getInputClass(config.slotId)}
           />
-          <p className="text-xs text-slate-400">Unique slot identifier where the content asset will appear.</p>
+          <p className="text-xs text-slate-400">Slot ID identifier where the content asset will appear.</p>
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="slot-context">Context</Label>
           <Input
             id="slot-context"
@@ -48,11 +48,12 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
             onChange={(e) => updateConfig("context", e.target.value)}
             className={getInputClass(config.context)}
           />
-          <p className="text-xs text-slate-400">Usually set to the type of page context, such as category.</p>
-        </div>
+          <p className="text-xs text-slate-400">Set to the type of page context, such as category.</p>
+        </div> */}
 
         <div className="space-y-2">
-          <Label htmlFor="slot-context-id">Context ID</Label>
+          {/* <Label htmlFor="slot-context-id">Context ID</Label> */}
+          <Label htmlFor="slot-context-id">Category ID</Label>
           <Input
             id="slot-context-id"
             value={config.contextId}
@@ -63,7 +64,7 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
           <p className="text-xs text-slate-400">The category or context code where this slot configuration is applied.</p>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="slot-configuration-id">Configuration ID</Label>
           <Input
             id="slot-configuration-id"
@@ -72,7 +73,7 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
             onChange={(e) => updateConfig("configurationId", e.target.value)}
             className={getInputClass(config.configurationId)}
           />
-          <p className="text-xs text-slate-400">Configuration name used by both the slot configuration and campaign assignment.</p>
+          <p className="text-xs text-slate-400">Auto generate value from File Naming. But, user needs to add the asset name</p>
         </div>
 
         <div className="space-y-2 md:col-span-2">
@@ -82,13 +83,13 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
             value={config.description}
             placeholder="Rank 40 | Mar 25 - 31, 2026 @12am | 25% with 100€ | Mar 11, 2026"
             onChange={(e) => updateConfig("description", e.target.value)}
-            rows={3}
+            rows={2}
             className={getInputClass(config.description)}
           />
           <p className="text-xs text-slate-400">Internal description to help identify the timing, offer, or usage of this slot setup.</p>
         </div>
 
-        <div className="space-y-2 md:col-span-2">
+        <div className="space-y-2">
           <Label htmlFor="slot-template">Template</Label>
           <Input
             id="slot-template"
@@ -98,6 +99,17 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
             className={getInputClass(config.template)}
           />
           <p className="text-xs text-slate-400">Template file used to render the assigned content asset.</p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="slot-context">Context</Label>
+          <Input
+            id="slot-context"
+            value={config.context}
+            placeholder="category"
+            onChange={(e) => updateConfig("context", e.target.value)}
+            className={getInputClass(config.context)}
+          />
+          <p className="text-xs text-slate-400">Set to the type of page context, such as category.</p>
         </div>
 
         <div className="space-y-2 md:col-span-2">
@@ -112,7 +124,7 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
           <p className="text-xs text-slate-400">Content asset that will be inserted into this slot configuration.</p>
         </div>
 
-        <div className="flex items-center justify-between rounded-2xl border p-4">
+        {/* <div className="flex items-center justify-between rounded-2xl border p-4">
           <div className="pr-4">
             <p className="font-medium">Assigned to site</p>
             <p className="text-sm text-slate-400">Set whether the slot configuration is assigned directly to the site.</p>
@@ -121,12 +133,12 @@ export default function SlotConfigurationForm({ config, setConfig }: Props) {
             checked={config.assignedToSite}
             onCheckedChange={(checked) => updateConfig("assignedToSite", checked)}
           />
-        </div>
+        </div> */}
 
-        <div className="flex items-center justify-between rounded-2xl border p-4">
+        <div className="flex items-center justify-between rounded-2xl border p-4 space-y-2 md:col-span-2">
           <div className="pr-4">
             <p className="font-medium">Enabled flag</p>
-            <p className="text-sm text-slate-400">Turn this on to include the slot configuration as enabled in the XML.</p>
+            <p className="text-xs text-slate-400">Turn this on to include the slot configuration as enabled in the XML.</p>
           </div>
           <Switch
             checked={config.enabledFlag}

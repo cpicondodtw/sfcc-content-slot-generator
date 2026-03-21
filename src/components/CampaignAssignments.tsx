@@ -7,6 +7,8 @@ import { Plus, Trash2, Wand2 } from "lucide-react";
 import type { Assignment, ConfigForm } from "../types";
 import { getInputClass } from "../utils/validation";
 
+const RANK_OPTIONS = ["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"];
+
 type Props = {
   assignments: Assignment[];
   setAssignments: Dispatch<SetStateAction<Assignment[]>>;
@@ -86,12 +88,12 @@ export default function CampaignAssignments({
             <p className="text-sm text-slate-400">
               Section which campaign the content asset will be added to.
             </p>
-            <p className="text-xs text-slate-400">
+            {/* <p className="text-xs text-slate-400">
               Add one or more campaign assignments for this slot configuration pair.
-            </p>
+            </p> */}
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          {/* <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={applyConfigToAssignments}>
               <Wand2 className="mr-2 h-4 w-4" />
               Sync shared fields
@@ -100,7 +102,7 @@ export default function CampaignAssignments({
               <Plus className="mr-2 h-4 w-4" />
               Add assignment
             </Button>
-          </div>
+          </div> */}
         </div>
       </CardHeader>
 
@@ -124,54 +126,6 @@ export default function CampaignAssignments({
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor={`assignment-slot-id-${item.id}`}>Slot ID</Label>
-                <Input
-                  id={`assignment-slot-id-${item.id}`}
-                  value={item.slotId}
-                  placeholder="cat-grid-slot1"
-                  onChange={(e) => updateAssignment(item.id, "slotId", e.target.value)}
-                  className={getInputClass(item.slotId)}
-                />
-                <p className="text-xs text-slate-400">Should match the slot ID used in the slot configuration above.</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`assignment-context-${item.id}`}>Context</Label>
-                <Input
-                  id={`assignment-context-${item.id}`}
-                  value={item.context}
-                  placeholder="category"
-                  onChange={(e) => updateAssignment(item.id, "context", e.target.value)}
-                  className={getInputClass(item.context)}
-                />
-                <p className="text-xs text-slate-400">Usually the same context as the slot configuration.</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`assignment-context-id-${item.id}`}>Context ID</Label>
-                <Input
-                  id={`assignment-context-id-${item.id}`}
-                  value={item.contextId}
-                  placeholder="AXE_Makeup"
-                  onChange={(e) => updateAssignment(item.id, "contextId", e.target.value)}
-                  className={getInputClass(item.contextId)}
-                />
-                <p className="text-xs text-slate-400">Target category or context code for this specific campaign assignment.</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`assignment-configuration-id-${item.id}`}>Configuration ID</Label>
-                <Input
-                  id={`assignment-configuration-id-${item.id}`}
-                  value={item.configurationId}
-                  placeholder="260325_25_with_100_offer_1_ff-grid_banner"
-                  onChange={(e) => updateAssignment(item.id, "configurationId", e.target.value)}
-                  className={getInputClass(item.configurationId)}
-                />
-                <p className="text-xs text-slate-400">Should match the configuration ID used in the slot configuration above.</p>
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor={`assignment-campaign-id-${item.id}`}>Campaign ID</Label>
                 <Input
                   id={`assignment-campaign-id-${item.id}`}
@@ -185,15 +139,70 @@ export default function CampaignAssignments({
 
               <div className="space-y-2">
                 <Label htmlFor={`assignment-rank-${item.id}`}>Rank</Label>
-                <Input
+                <select
                   id={`assignment-rank-${item.id}`}
                   value={item.rank}
-                  placeholder="40"
                   onChange={(e) => updateAssignment(item.id, "rank", e.target.value)}
-                  className={getInputClass(item.rank)}
-                />
+                  className={`h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 py-1 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm ${getInputClass(item.rank)}`}
+                >
+                  <option value="">Select rank</option>
+                  {RANK_OPTIONS.map((rank) => (
+                    <option key={rank} value={rank}>
+                      {rank}
+                    </option>
+                  ))}
+                </select>
                 <p className="text-xs text-slate-400">Display priority for this campaign assignment.</p>
               </div>
+              {/* <div className="space-y-2">
+                <Label htmlFor={`assignment-slot-id-${item.id}`}>Slot ID</Label>
+                <Input
+                  id={`assignment-slot-id-${item.id}`}
+                  value={item.slotId}
+                  placeholder="cat-grid-slot1"
+                  onChange={(e) => updateAssignment(item.id, "slotId", e.target.value)}
+                  className={getInputClass(item.slotId)}
+                />
+                <p className="text-xs text-slate-400">Should match the slot ID used in the slot configuration above.</p>
+              </div> */}
+
+              {/* <div className="space-y-2">
+                <Label htmlFor={`assignment-context-${item.id}`}>Context</Label>
+                <Input
+                  id={`assignment-context-${item.id}`}
+                  value={item.context}
+                  placeholder="category"
+                  onChange={(e) => updateAssignment(item.id, "context", e.target.value)}
+                  className={getInputClass(item.context)}
+                />
+                <p className="text-xs text-slate-400">Usually the same context as the slot configuration.</p>
+              </div> */}
+
+              {/* <div className="space-y-2">
+                <Label htmlFor={`assignment-context-id-${item.id}`}>Category ID</Label>
+                <Input
+                  id={`assignment-context-id-${item.id}`}
+                  value={item.contextId}
+                  placeholder="AXE_Makeup"
+                  onChange={(e) => updateAssignment(item.id, "contextId", e.target.value)}
+                  className={getInputClass(item.contextId)}
+                />
+                <p className="text-xs text-slate-400">Target category or context code for this specific campaign assignment.</p>
+              </div> */}
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor={`assignment-configuration-id-${item.id}`}>Configuration ID</Label>
+                <Input
+                  id={`assignment-configuration-id-${item.id}`}
+                  value={item.configurationId}
+                  placeholder="260325_25_with_100_offer_1_ff-grid_banner"
+                  onChange={(e) => updateAssignment(item.id, "configurationId", e.target.value)}
+                  className={getInputClass(item.configurationId)}
+                />
+                <p className="text-xs text-slate-400">Should match the configuration ID used in the slot configuration above.</p>
+              </div>
+
+              
             </div>
           </div>
         ))}

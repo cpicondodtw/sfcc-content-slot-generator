@@ -13,6 +13,7 @@ export type ConfigForm = {
   context: string;
   contextId: string;
   configurationId: string;
+  configurationIdManuallyEdited: boolean;
   assignedToSite: boolean;
   description: string;
   template: string;

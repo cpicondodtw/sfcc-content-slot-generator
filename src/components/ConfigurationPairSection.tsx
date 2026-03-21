@@ -22,7 +22,7 @@ export default function ConfigurationPairSection({
   onUpdateAssignments,
 }: Props) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Slot &amp; Campaign Configuration {index + 1}</h2>

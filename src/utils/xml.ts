@@ -9,32 +9,67 @@ export function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
+function normalizeXmlValue(value: string) {
+  return value.trim();
+}
+
+function normalizeConfig(config: ConfigForm): ConfigForm {
+  return {
+    ...config,
+    slotId: normalizeXmlValue(config.slotId),
+    context: normalizeXmlValue(config.context),
+    contextId: normalizeXmlValue(config.contextId),
+    configurationId: normalizeXmlValue(config.configurationId),
+    description: normalizeXmlValue(config.description),
+    template: normalizeXmlValue(config.template),
+    contentAssetId: normalizeXmlValue(config.contentAssetId),
+  };
+}
+
+function normalizeAssignment(item: Assignment): Assignment {
+  return {
+    ...item,
+    slotId: normalizeXmlValue(item.slotId),
+    context: normalizeXmlValue(item.context),
+    contextId: normalizeXmlValue(item.contextId),
+    configurationId: normalizeXmlValue(item.configurationId),
+    campaignId: normalizeXmlValue(item.campaignId),
+    rank: normalizeXmlValue(item.rank),
+  };
+}
+
 export function buildConfigurationXml(config: ConfigForm) {
-  return `    <slot-configuration slot-id="${escapeXml(config.slotId)}" context="${escapeXml(
-    config.context,
-  )}" context-id="${escapeXml(config.contextId)}" configuration-id="${escapeXml(
-    config.configurationId,
-  )}" assigned-to-site="${String(config.assignedToSite)}">
-        <description>${escapeXml(config.description)}</description>
-        <template>${escapeXml(config.template)}</template>
-        <enabled-flag>${String(config.enabledFlag)}</enabled-flag>
+  const normalizedConfig = normalizeConfig(config);
+
+  return `    <slot-configuration slot-id="${escapeXml(normalizedConfig.slotId)}" context="${escapeXml(
+    normalizedConfig.context,
+  )}" context-id="${escapeXml(normalizedConfig.contextId)}" configuration-id="${escapeXml(
+    normalizedConfig.configurationId,
+  )}" assigned-to-site="${String(
+    normalizedConfig.assignedToSite,
+  )}">
+        <description>${escapeXml(normalizedConfig.description)}</description>
+        <template>${escapeXml(normalizedConfig.template)}</template>
+        <enabled-flag>${String(normalizedConfig.enabledFlag)}</enabled-flag>
         <content>
             <content-assets>
-                <content-asset content-id="${escapeXml(config.contentAssetId)}"/>
+                <content-asset content-id="${escapeXml(normalizedConfig.contentAssetId)}"/>
             </content-assets>
         </content>
     </slot-configuration>`;
 }
 
 export function buildAssignmentXml(item: Assignment) {
+  const normalizedAssignment = normalizeAssignment(item);
+
   return `    <slot-configuration-campaign-assignment slot-id="${escapeXml(
-    item.slotId,
-  )}" context="${escapeXml(item.context)}" context-id="${escapeXml(
-    item.contextId,
-  )}" configuration-id="${escapeXml(item.configurationId)}" campaign-id="${escapeXml(
-    item.campaignId,
+    normalizedAssignment.slotId,
+  )}" context="${escapeXml(normalizedAssignment.context)}" context-id="${escapeXml(
+    normalizedAssignment.contextId,
+  )}" configuration-id="${escapeXml(normalizedAssignment.configurationId)}" campaign-id="${escapeXml(
+    normalizedAssignment.campaignId,
   )}">
-        <rank>${escapeXml(item.rank)}</rank>
+        <rank>${escapeXml(normalizedAssignment.rank)}</rank>
     </slot-configuration-campaign-assignment>`;
 }
 
@@ -48,6 +83,6 @@ export function buildFullXml(pairs: ConfigurationPair[]) {
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <slot-configurations xmlns="http://www.demandware.com/xml/impex/slot/2008-09-08">
-${sections ? `\n\n${sections}\n` : ""}
+${sections ? `\n${sections}\n` : ""}
 </slot-configurations>`;
 }
