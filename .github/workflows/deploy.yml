@@ -2,7 +2,7 @@ name: Deploy static content to Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "feature/shi-content-slot-generator"]
   workflow_dispatch:
 
 permissions:
